@@ -1,85 +1,85 @@
-import React, { useRef, useState } from "react";
-import TextField from "@mui/material/TextField";
-import CircularProgress from "@mui/material/CircularProgress";
-import { Typography, Button } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
-// App.jsx
-import { addTodo } from "./config/reduxToolkit-config/reducer/todoslice";
+import React, { useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addTodo, removeTodo, updateTodo } from './config/reduxToolkit-config/reducer/todoslice';
+
+
+import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
 
 const App = () => {
-  const Todoref = useRef();
-  const [loading, setLoading] = useState(false);
-  const editingIndex = null;
-
+  const todoRef = useRef();
   const dispatch = useDispatch();
   const selector = useSelector((state) => state.todos);
-  console.log(selector);
 
-
-
-  const SubmitTodo = (event) => {
+  const addTodoReducer = (event) => {
     event.preventDefault();
     dispatch(addTodo({
-      title: Todoref.current.value,
+      title: todoRef.current.value,
     }));
-    Todoref.current.value = "";
+    todoRef.current.value = '';
   };
 
-  // const DeleteTodos = (index) => {
-  //   dispatch(deleteTodo(index));
-  // };
+  const deleteTodo = (index) => {
+    dispatch(removeTodo({
+      index: index,
+    }));
+  };
+
+  function UpdateTodo(index, item) {
+    const updatedTitle = prompt("Edit Todo", item);
+    if (updatedTitle !== null) {
+        dispatch(updateTodo({ index, title: updatedTitle }));
+    }
+}
+
 
   return (
     <>
-      <form
-        onSubmit={SubmitTodo}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="h2" style={{ marginBottom: "30px" }}>
-          TODO APP
-        </Typography>
+      <Typography variant="h2" style={{fontFamily:"inherit", textAlign:'center',marginBottom:"15px" }} >T0doApp</Typography>
+      <form onSubmit={addTodoReducer} style={{ marginBottom: '20px' }}>
         <TextField
-          ref={Todoref}
-          variant="filled"
-          placeholder="Enter todo"
-          required
-          style={{
-            width: "300px",
-            border: "2px solid #284cff ",
-            borderRadius: "9px",
-            backgroundColor: "ButtonHighlight",
-            marginBottom: "2px",
-            display: "flex",
-            flexDirection: "column",
-            textAlignLast: "center",
-          }}
+          type="text"
+          placeholder="Add a new todo"
+          inputRef={todoRef}
+          variant="outlined"
+          fullWidth
         />
-        <Button
-          type="submit"
-          style={{ paddingLeft: "110px", paddingRight: "110px" }}
-          variant="contained"
-          disabled={loading}
-        >
-          {loading ? (
-            <CircularProgress size={20} sx={{ color: "white" }} />
-          ) : editingIndex !== null ? (
-            "Edit Todo"
-          ) : (
-            "Add Todo"
-          )}
+        <Button type="submit" variant="contained" color="primary" style={{ marginTop: '10px' }}>
+          Add Todo
         </Button>
       </form>
-      <ul>
+
+      <List>
         {selector.map((item, index) => (
-          <li key={item.id}>
-            {item.title}
-          </li>
+          <ListItem key={item.id}>
+            <ListItemButton>
+              <ListItemText primary={item.title} />
+              <Button
+                variant="contained"
+                color="error"
+                onClick={() => deleteTodo(index)}
+                style={{ marginLeft: '5px' ,width:"1px",height:"25px" }}
+              >
+                Delete
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={() => UpdateTodo(index, item.title)}
+
+                style={{ marginLeft: '5px' ,width:"1px",height:"25px" }}
+              >
+                Edit
+              </Button>
+            </ListItemButton>
+          </ListItem>
         ))}
-      </ul>
+      </List>
     </>
   );
 };
